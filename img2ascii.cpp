@@ -1,5 +1,6 @@
 #include </usr/include/c++/7/iostream>
 #include <sys/ioctl.h>
+#define cimg_display 0
 #include <CImg/CImg.h>
 #include "args.hpp"
 
@@ -13,6 +14,8 @@ T map(T current_value, T minimum_domain_value, T maximum_domain_value, T minimum
 // Get the Terminal size using ioctl and store it in these variables
 // Fullscreen on my machine is (191x52)
 void getSize(unsigned short &width, unsigned short &height);
+
+int brightness(unsigned char &red, unsigned char &green, unsigned char &blue);
 
 struct vec2
 {
@@ -49,14 +52,33 @@ int main(int argc, char **argv)
 
 	// If Image's Aspect Ratio is greater than 1 work with Width, else work with Height;
 	float image_aspect = (float)image_size.x / (float)image_size.y;
-	float term_aspect = (float)term_width / (float)term_height;
+
+	const unsigned int new_width = term_width * 4U;
+	const unsigned int new_height = term_height * 8U;
+
+	if(image_aspect < 1.f)
+	{
+		image.resize(new_height * image_aspect, new_height, -100, -100, 5);
+		for(unsigned int rows = 0U; rows < image.height() - 8; rows += 8)
+		{
+			for(unsigned int cols = 0U; cols < image.width() - 4; cols += 4)
+			{
+				unsigned char r = image._atXY(cols, rows, 0, 0);
+				unsigned char g = image._atXY(cols, rows, 0, 1);
+				unsigned char b = image._atXY(cols, rows, 0, 2);
+				std::cout << symbols[map(brightness(r, g, b), 0, 255, 0, 66)];
+			}
+			std::cout << std::endl;
+		}
+
+	}
 
 	return 0;
 } /// END OF MAIN
 
 // Functions
 
-template <typename T>
+	template <typename T>
 T map(T val, T min_dom, T max_dom, T min_ran, T max_ran)
 {
 	return ((val - min_dom) * (max_ran - min_ran) / (max_dom - min_dom) + min_ran);
@@ -69,3 +91,10 @@ void getSize(unsigned short &width, unsigned short &height)
 	width = size.ws_col;
 	height = size.ws_row;
 }
+
+int brightness(unsigned char &red, unsigned char &green, unsigned char &blue)
+{
+	return (int)(red * 0.22f + green * 0.71f + blue * 0.07f);
+}
+
+
