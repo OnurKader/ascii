@@ -16,11 +16,12 @@ T map(T current_value, T minimum_domain_value, T maximum_domain_value, T minimum
 void getSize(unsigned short &width, unsigned short &height);
 
 // Get the Luminesence, human eyes see green better, use a formula from the interwebs
-int brightness(const unsigned char &red, const unsigned char &green, const unsigned char &blue);
+unsigned int brightness(const unsigned char &red, const unsigned char &green, const unsigned char &blue);
 
 /// MAIN FUNCTION
 int main(int argc, char **argv)
 {
+	std::ios_base::sync_with_stdio(false);
 	// Setup The Arguments
 	Args arg_parser(argc, argv);
 	arg_parser.convert();
@@ -61,14 +62,14 @@ int main(int argc, char **argv)
 			if(grey_scale || !colorful)
 			{
 				unsigned int b = image._atXY(cols, rows, 0, 0);
-				std::cout << symbols[map(b, 0U, 256U, 0U, 102U)];
+				std::cout << symbols[map(b, 0U, 256U, 0U, 101U)];
 			}
 			else {
 				std::cout << "\033[38;2;0;0;0m";
 				uint8_t r = image._atXY(cols, rows, 0, 0);
 				uint8_t g = image._atXY(cols, rows, 0, 1);
 				uint8_t b = image._atXY(cols, rows, 0, 2);
-				std::cout << (inverse ? "\033[48;2;" : "\033[38;2;") << (uint16_t)r << ';' << (uint16_t)g << ';' << (uint16_t)b << 'm' << symbols[map(brightness(r, g, b), 0, 256, 0, 102)];
+				std::cout << (inverse ? "\033[48;2;" : "\033[38;2;") << (uint16_t)r << ';' << (uint16_t)g << ';' << (uint16_t)b << 'm' << symbols[map(brightness(r, g, b), 0U, 256U, 0U, 101U)];
 			}
 		}
 		std::cout << "\033[m" << std::endl;
@@ -92,9 +93,9 @@ void getSize(unsigned short &width, unsigned short &height)
 	height = size.ws_row;
 }
 
-int brightness(const unsigned char &red, const unsigned char &green, const unsigned char &blue)
+unsigned int brightness(const unsigned char &red, const unsigned char &green, const unsigned char &blue)
 {
-	return (int)(red * 0.22f + green * 0.71f + blue * 0.07f);
+	return (unsigned int)(red * 0.22f + green * 0.71f + blue * 0.07f);
 }
 
 
